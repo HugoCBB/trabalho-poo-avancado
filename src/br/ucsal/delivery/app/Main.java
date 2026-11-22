@@ -20,14 +20,7 @@ public class Main {
 	public static void main(String[] args) {
 		int opcao;
 		do {
-			System.out.println("\n=== DELIVERY ===");
-			System.out.println("1 - Ver cardapio");
-			System.out.println("2 - Novo pedido");
-			System.out.println("3 - Avancar status de pedido");
-			System.out.println("4 - Listar pedidos");
-			System.out.println("5 - Relatorio do dia");
-			System.out.println("6 - Fila da cozinha");
-			System.out.println("0 - Sair");
+			hub();
 			opcao = lerInt("Opcao: ");
 			try {
 				switch (opcao) {
@@ -46,6 +39,16 @@ public class Main {
 		} while (opcao != 0);
 	}
 
+	private static void hub() {
+		System.out.println("\n=== DELIVERY ===");
+		System.out.println("1 - Ver cardapio");
+		System.out.println("2 - Novo pedido");
+		System.out.println("3 - Avancar status de pedido");
+		System.out.println("4 - Listar pedidos");
+		System.out.println("5 - Relatorio do dia");
+		System.out.println("6 - Fila da cozinha");
+		System.out.println("0 - Sair");
+	}
 	private static void mostrarFilaCozinha() {
 		if (controller.getCozinha().getFila().isEmpty()) {
 			System.out.println("Cozinha sem pedidos na fila.");
