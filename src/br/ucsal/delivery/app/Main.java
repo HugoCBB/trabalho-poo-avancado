@@ -26,6 +26,7 @@ public class Main {
 			System.out.println("3 - Avancar status de pedido");
 			System.out.println("4 - Listar pedidos");
 			System.out.println("5 - Relatorio do dia");
+			System.out.println("6 - Fila da cozinha");
 			System.out.println("0 - Sair");
 			opcao = lerInt("Opcao: ");
 			try {
@@ -45,6 +46,14 @@ public class Main {
 		} while (opcao != 0);
 	}
 
+	private static void mostrarFilaCozinha() {
+		if (controller.getCozinha().getFila().isEmpty()) {
+			System.out.println("Cozinha sem pedidos na fila.");
+		} else {
+			controller.getCozinha().getFila().forEach(System.out::println);
+		}
+	}
+
 	private static void mostrarCardapio() {
 		controller.getCardapio().forEach((codigo, item) -> System.out.println(codigo + " - " + item));
 	}
@@ -61,16 +70,6 @@ public class Main {
 				return controller.buscarFrete(lerInt("Insira a opcao de frete: "));
 			} catch (IllegalArgumentException e) {
 				System.out.println("Erro: " + e.getMessage());
-			}
-		}
-	}
-	private static ItemCardapio escolherItem(int codigo) {
-		while (true) {
-			try {
-				return controller.buscarItem(codigo);
-			} catch (PedidoInvalidoException e) {
-				System.out.println("Erro: " + e.getMessage());
-				codigo = lerInt("Codigo do item (0 para finalizar): ");
 			}
 		}
 	}
