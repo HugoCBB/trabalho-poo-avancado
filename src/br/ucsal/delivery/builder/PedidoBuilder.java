@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import br.ucsal.delivery.exception.PedidoInvalidoException;
 import br.ucsal.delivery.model.Cliente;
 import br.ucsal.delivery.model.ItemCardapio;
 import br.ucsal.delivery.model.Pedido;
@@ -28,10 +29,10 @@ public class PedidoBuilder {
 
 	public PedidoBuilder comCliente(String nome, String telefone) {
 		if (nome == null || nome.isBlank()) {
-			throw new IllegalArgumentException("Nome do cliente obrigatorio");
+			throw new PedidoInvalidoException("Nome do cliente obrigatorio");
 		}
 		if (telefone == null || telefone.isBlank()) {
-			throw new IllegalArgumentException("Telefone do cliente obrigatorio");
+			throw new PedidoInvalidoException("Telefone do cliente obrigatorio");
 		}
 		return comCliente(new Cliente(nome, telefone));
 	}
@@ -48,7 +49,7 @@ public class PedidoBuilder {
 
 	public PedidoBuilder comFrete(CalculoFreteStrategy frete) {
 		if (frete == null) {
-			throw new IllegalArgumentException("Frete obrigatorio");
+			throw new PedidoInvalidoException("Frete obrigatorio");
 		}
 		this.frete = frete;
 		return this;
@@ -56,7 +57,7 @@ public class PedidoBuilder {
 
 	public PedidoBuilder comDesconto(DescontoStrategy desconto) {
 		if (desconto == null) {
-			throw new IllegalArgumentException("Desconto obrigatorio");
+			throw new PedidoInvalidoException("Desconto obrigatorio");
 		}
 		this.desconto = desconto;
 		return this;
@@ -75,10 +76,10 @@ public class PedidoBuilder {
 
 	public PedidoBuilder adicionarItem(ItemCardapio item, int quantidade) {
 		if (item == null) {
-			throw new IllegalArgumentException("Item invalido");
+			throw new PedidoInvalidoException("Item invalido");
 		}
 		if (quantidade <= 0) {
-			throw new IllegalArgumentException("Quantidade deve ser maior que zero");
+			throw new PedidoInvalidoException("Quantidade deve ser maior que zero");
 		}
 		itens.merge(item, quantidade, Integer::sum);
 		return this;
@@ -86,13 +87,13 @@ public class PedidoBuilder {
 
 	public Pedido build() {
 		if (cliente == null) {
-			throw new IllegalArgumentException("Pedido sem cliente");
+			throw new PedidoInvalidoException("Pedido sem cliente");
 		}
 		if (endereco == null || endereco.isBlank()) {
-			throw new IllegalArgumentException("Pedido sem endereco");
+			throw new PedidoInvalidoException("Pedido sem endereco");
 		}
 		if (itens.isEmpty()) {
-			throw new IllegalArgumentException("Pedido sem itens");
+			throw new PedidoInvalidoException("Pedido sem itens");
 		}
 		Pedido pedido = new Pedido(cliente, endereco, observacao, frete, desconto);
 		itens.forEach(pedido::adicionarItem);
