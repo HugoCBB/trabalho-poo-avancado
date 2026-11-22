@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import br.ucsal.delivery.exception.PagamentoRecusadoException;
+import br.ucsal.delivery.exception.PedidoInvalidoException;
 import br.ucsal.delivery.observer.PedidoObserver;
 import br.ucsal.delivery.pagamento.Pagamento;
 import br.ucsal.delivery.strategy.CalculoFreteStrategy;
@@ -24,7 +26,16 @@ public class Pedido {
 	private Pagamento pagamento;
 
 	public Pedido(Cliente cliente, String endereco, String observacao, CalculoFreteStrategy frete,
-			DescontoStrategy desconto) {
+				  DescontoStrategy desconto) {
+		if (cliente == null) {
+			throw new PedidoInvalidoException("Pedido precisa de um cliente");
+		}
+		if (endereco == null || endereco.isBlank()) {
+			throw new PedidoInvalidoException("Endereco nao pode ser vazio");
+		}
+		if (frete == null || desconto == null) {
+			throw new PedidoInvalidoException("Pedido precisa de estrategia de frete e de desconto");
+		}
 		this.id = proximoId++;
 		this.cliente = cliente;
 		this.endereco = endereco;
@@ -34,10 +45,16 @@ public class Pedido {
 	}
 
 	public void adicionarItem(ItemCardapio item) {
+		if (item == null) {
+			throw new PedidoInvalidoException("Item invalido");
+		}
 		itens.add(item);
 	}
 
 	public void adicionarItem(ItemCardapio item, int quantidade) {
+		if (quantidade <= 0) {
+			throw new PedidoInvalidoException("Quantidade deve ser maior que zero");
+		}
 		for (int i = 0; i < quantidade; i++) {
 			adicionarItem(item);
 		}
@@ -57,6 +74,9 @@ public class Pedido {
 	}
 
 	public void avancarStatus() {
+		if (status == StatusPedido.ENTREGUE) {
+			throw new PedidoInvalidoException("Pedido #" + id + " ja foi entregue");
+		}
 		alterarStatus(status.proximo());
 	}
 
@@ -76,12 +96,20 @@ public class Pedido {
 		return calcularSubtotal() - calcularDesconto() + calcularFrete();
 	}
 
-	public boolean pagar(Pagamento pagamento) {
-		boolean aprovado = pagamento.processar(calcularTotal());
-		if (aprovado) {
-			this.pagamento = pagamento;
+	public void pagar(Pagamento pagamento) {
+		if (this.pagamento != null) {
+			throw new PagamentoRecusadoException("Pedido #" + id + " ja foi pago");
 		}
-		return aprovado;
+		if (itens.isEmpty()) {
+			throw new PedidoInvalidoException("Pedido sem itens nao pode ser pago");
+		}
+		if (pagamento == null) {
+			throw new PagamentoRecusadoException("Forma de pagamento nao informada");
+		}
+		if (!pagamento.processar(calcularTotal())) {
+			throw new PagamentoRecusadoException("Pagamento recusado (" + pagamento.getDescricao() + ")");
+		}
+		this.pagamento = pagamento;
 	}
 
 	public int getId() {

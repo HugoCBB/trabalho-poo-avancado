@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import br.ucsal.delivery.exception.PedidoInvalidoException;
 import br.ucsal.delivery.model.Cliente;
 import br.ucsal.delivery.model.ItemCardapio;
 import br.ucsal.delivery.model.Pedido;
@@ -28,14 +29,14 @@ public class PedidoController {
 	public ItemCardapio buscarItem(int codigo) {
 		ItemCardapio item = cardapio.get(codigo);
 		if (item == null) {
-			throw new IllegalArgumentException("Item inexistente: " + codigo);
+			throw new PedidoInvalidoException("Item inexistente: " + codigo);
 		}
 		return item;
 	}
 
 	public Pedido criarPedido(String nome, String telefone, String endereco, Map<ItemCardapio, Integer> itens) {
 		if (itens.isEmpty()) {
-			throw new IllegalArgumentException("Pedido sem itens");
+			throw new PedidoInvalidoException("Pedido sem itens");
 		}
 		Pedido pedido = new Pedido(new Cliente(nome, telefone), endereco, "", subtotal -> 0, subtotal -> 0);
 		itens.forEach(pedido::adicionarItem);
@@ -45,7 +46,7 @@ public class PedidoController {
 
 	public Pedido avancarStatus(int id) {
 		Pedido pedido = repository.buscarPorId(id)
-				.orElseThrow(() -> new IllegalArgumentException("Pedido inexistente: " + id));
+				.orElseThrow(() -> new PedidoInvalidoException("Pedido inexistente: " + id));
 		pedido.avancarStatus();
 		return pedido;
 	}

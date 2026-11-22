@@ -5,7 +5,10 @@ import java.util.Map;
 import java.util.Scanner;
 
 import br.ucsal.delivery.controller.PedidoController;
+import br.ucsal.delivery.exception.PagamentoRecusadoException;
+import br.ucsal.delivery.exception.PedidoInvalidoException;
 import br.ucsal.delivery.model.ItemCardapio;
+import br.ucsal.delivery.relatorio.RelatorioPedidos;
 
 public class Main {
 	private static final Scanner sc = new Scanner(System.in);
@@ -19,18 +22,20 @@ public class Main {
 			System.out.println("2 - Novo pedido");
 			System.out.println("3 - Avancar status de pedido");
 			System.out.println("4 - Listar pedidos");
+			System.out.println("5 - Relatorio do dia");
 			System.out.println("0 - Sair");
 			opcao = lerInt("Opcao: ");
 			try {
 				switch (opcao) {
-				case 1 -> mostrarCardapio();
-				case 2 -> novoPedido();
-				case 3 -> System.out.println(controller.avancarStatus(lerInt("ID do pedido: ")));
-				case 4 -> controller.listarPedidos().forEach(System.out::println);
-				case 0 -> System.out.println("Ate logo!");
-				default -> System.out.println("Opcao invalida");
+					case 1 -> mostrarCardapio();
+					case 2 -> novoPedido();
+					case 3 -> System.out.println(controller.avancarStatus(lerInt("ID do pedido: ")));
+					case 4 -> controller.listarPedidos().forEach(System.out::println);
+					case 5 -> System.out.println(new RelatorioPedidos(controller.listarPedidos()).gerar());
+					case 0 -> System.out.println("Ate logo!");
+					default -> System.out.println("Opcao invalida");
 				}
-			} catch (IllegalArgumentException e) {
+			} catch (PedidoInvalidoException | PagamentoRecusadoException e) {
 				System.out.println("Erro: " + e.getMessage());
 			}
 		} while (opcao != 0);
