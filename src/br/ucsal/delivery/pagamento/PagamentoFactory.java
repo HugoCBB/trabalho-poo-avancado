@@ -5,7 +5,6 @@ import br.ucsal.delivery.pagamento.externo.GatewayPagamentoAdapter;
 
 public abstract class PagamentoFactory {
 
-	// Factory Method: subclasses ou esta fabrica decidem qual produto instanciar
 	protected abstract Pagamento criarPagamento();
 
 	public Pagamento obter() {
