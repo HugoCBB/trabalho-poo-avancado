@@ -1,5 +1,8 @@
 package br.ucsal.delivery.pagamento;
 
+import br.ucsal.delivery.pagamento.externo.ApiBancoExterna;
+import br.ucsal.delivery.pagamento.externo.GatewayPagamentoAdapter;
+
 public abstract class PagamentoFactory {
 
 	// Factory Method: subclasses ou esta fabrica decidem qual produto instanciar
@@ -31,7 +34,7 @@ public abstract class PagamentoFactory {
 	public static class CartaoFactory extends PagamentoFactory {
 		@Override
 		protected Pagamento criarPagamento() {
-			return new Cartao();
+			return new GatewayPagamentoAdapter(new ApiBancoExterna());
 		}
 	}
 

@@ -99,6 +99,9 @@ public class Main {
 
 	private static void mostrarResumo(Pedido pedido) {
 		System.out.println("\n--- Resumo do pedido #" + pedido.getId() + " ---");
+		if (!pedido.getObservacao().isBlank()) {
+			System.out.println("Observacao: " + pedido.getObservacao());
+		}
 		System.out.printf("Subtotal: R$ %.2f%n", pedido.calcularSubtotal());
 		System.out.printf("Desconto: -R$ %.2f%n", pedido.calcularDesconto());
 		System.out.printf("Frete: R$ %.2f%n", pedido.calcularFrete());
@@ -114,17 +117,48 @@ public class Main {
 		int codigo = lerInt("Codigo do item (0 para finalizar): ");
 		while (codigo != 0) {
 			try {
-				ItemCardapio item = controller.buscarItem(codigo);
+				ItemCardapio item = escolherExtras(controller.buscarItem(codigo));
 				itens.merge(item, lerQuantidade(), Integer::sum);
 			} catch (PedidoInvalidoException e) {
 				System.out.println("Erro: " + e.getMessage());
 			}
 			codigo = lerInt("Codigo do item (0 para finalizar): ");
 		}
+		String observacao = lerTexto("Observacao (Enter para nenhuma): ");
 		CalculoFreteStrategy frete = escolherFrete();
 		DescontoStrategy desconto = escolherCupom();
-		Pedido pedido = controller.criarPedido(nome, telefone, endereco, itens, frete, desconto);
+		Pedido pedido = controller.criarPedido(nome, telefone, endereco, observacao, itens, frete, desconto);
 		mostrarResumo(pedido);
+		pagar(pedido);
+	}
+
+	private static ItemCardapio escolherExtras(ItemCardapio item) {
+		while (true) {
+			System.out.println("Extras para " + item + ":");
+			controller.previaExtras(item).forEach((codigo, comExtra) -> System.out.println(codigo + " - " + comExtra));
+			int codigo = lerInt("Codigo do extra (0 para nenhum/finalizar): ");
+			if (codigo == 0) {
+				return item;
+			}
+			try {
+				item = controller.adicionarExtra(item, codigo);
+			} catch (PedidoInvalidoException e) {
+				System.out.println("Erro: " + e.getMessage());
+			}
+		}
+	}
+
+	private static void pagar(Pedido pedido) {
+		while (true) {
+			System.out.println("1 - Pix | 2 - Cartao | 3 - Dinheiro");
+			try {
+				controller.pagarPedido(pedido, lerInt("Forma de pagamento: "));
+				System.out.println("Pagamento aprovado (" + pedido.getPagamento().getDescricao() + ")");
+				return;
+			} catch (PagamentoRecusadoException | IllegalArgumentException e) {
+				System.out.println("Erro: " + e.getMessage() + ". Tente outra forma.");
+			}
+		}
 	}
 
 	private static String lerTexto(String rotulo) {
